@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>dc.js - Toulousains morts pour la France en 1914-1918</title>
+    <meta charset="UTF-8">
+<script   src="https://code.jquery.com/jquery-2.2.1.min.js"   integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="   crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+ 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.6/crossfilter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-beta.26/dc.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.0.0-beta.26/dc.min.css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" />
+</head>
+  
+  <style>
+	body{
+      background-color: #dddddd;
+    }
+
+    svg {
+	  background-color: #dddddd;
+        font-family: 'Lato';
+     }
+	.row {
+	font: 12px sans-serif;
+	color : #f03b20;
+	} 
+	
+	.dc-chart g.state path {
+    stroke: #aaa;
+}
+	#graph9, #graph10{
+        height: 200px;
+        overflow-y: scroll;
+      }
+	.dc-chart g.row text {
+	fill: #555;
+	font: 9px sans-serif;
+	 }
+
+  </style>
+<body>
+    <div class='container' style='font: 9px sans-serif;'>
+        <div class='row' style='font: 12px sans-serif; color :black'>
+            <h3>Toulousains morts pour la France en 1914-1918 </h3>
+            <p><strong>Explorateur de données </strong>réalisé à partir du 
+                <a href='https://data.toulouse-metropole.fr/explore/dataset/toulousains-morts-pour-la-france-1914-1919/'> jeu de données </a>  disponible sur le site open data de Toulouse Métropole et de  <a href='http://professionnels.ign.fr/geofla#tab-3'> données géographiques </a> transformées dans un format json.</p>
+            <p>Ce jeu de données contient la liste des Toulousains morts pour la France lors de la guerre 14-18 : Nom, Prénoms, Date de naissance, Ville de naissance, Département de naissance, Pays, Régiment, Grade, Date du décès, Département de décès, Lieu du décès, Pays de décès.</p>
+            <p><strong>Comment fonctionne cet explorateur :</strong>
+            </p>
+            <p>Les graphiques et le tableau de données sont liés dynamiquement entre eux. L’exploration s’effectue avec l’aide de la souri de l’ordinateur directement sur les graphiques : </p>
+            <ul>
+                <li>En cliquant sur une ou plusieurs zones des cartes, les données correspondantes sont sélectionnées et les autres graphiques et le tableau de données sont instantanément mis à jour </li>
+                <li>En cliquant et/ou  en déplaçant la souris sur les histogrammes, un selecteur apparait qui permet de sélectionner une partie des données. De la même manière, les autres graphiques et le tableau de données sont instantanément mis à jour.</li>
+            </ul>
+            <p>Developpé par<a href='mailto:contact@datasens.fr'> Alain Ottenheimer </a>- DataSens - 2017 </p>
+            <p></p>
+			<p></p>
+        </div>
+        <div class='row' >
+		    <div class='col-md-3' id='graph1'>
+                Pays de naissance
+                <a class="reset" href="javascript:graph1.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+                <span class="reset" style="display: none;"> | filter: <span class="filter"></span></span>
+
+                <div class="clearfix"></div>
+            </div>
+			<div class='col-md-3 col-md-offset-0' id='graph2'>
+                 Dpt de naissance
+                <a class="reset" href="javascript:graph2.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+                <span class="reset" style="display: none;"> | filtre: <span class="filter"></span></span>
+                <div class="clearfix"></div>
+            </div>
+			<div class='col-md-3' id='graph3'>
+              Pays de décès
+                <a class="reset" href="javascript:graph3.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+                <span class="reset" style="display: none;"> | filter: <span class="filter"></span></span>
+
+                <div class="clearfix"></div>
+            </div>
+            <div class='col-md-3' id='graph4'>
+                 Dpt de décès
+                <a class="reset" href="javascript:graph4.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+                <span class="reset" style="display: none;"> | Filtre: <span class="filter"></span></span>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+		
+		   <div class='row' >
+		    <div class='col-md-3' id='graph8'>
+			 <div class='row' >
+               Décès par an</strong>
+                <a class="reset" href="javascript:graph8.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			    <span class="reset" style="display: none;"> | filter: <span class="filter"></span></span>
+                <div class="clearfix"></div>
+            </div>
+           </div>
+		   
+		   <div class='col-md-6' id='graph5'>
+               Décès par mois
+                <a class="reset" href="javascript:graph5.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+                <span class="reset" style="display: none;"> | Filtre: <span class="filter"></span></span>
+                <div class="clearfix"></div>
+           </div>
+		   
+		    <div class='col-md-3' id='graph9'>
+			 <div class='row' >
+                Décès par lieu</strong>
+                <a class="reset" href="javascript:graph9.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			    <span class="reset" style="display: none;"> | filter: <span class="filter"></span></span>
+                <div class="clearfix"></div>
+            </div>
+          </div>
+		  </div>
+		
+	   <div class='row' >
+		 <div class='col-md-9' id='graph7'>
+		   <div class='row' >
+              Décès par age</strong>
+                <a class="reset" href="javascript:graph7.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			    <span class="reset" style="display: none;"> | filter: <span class="filter"></span></span>
+				<div class="clearfix"></div>
+           </div>
+         </div>	
+
+		 <div class='col-md-3' id='graph10'>
+		   <div class='row' >
+                Décès par régiment</strong>
+                <a class="reset" href="javascript:graph10.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			    <span class="reset" style="display: none;"> | filter: <span class="filter"></span></span>
+                <div class="clearfix"></div>
+           </div>
+         </div>
+		</div>
+		
+	   <div class='row'>
+		<div class='col-md-12'>
+            <div class="dc-data-count" style='font: 12px sans-serif;'>
+             
+           </div>
+				
+			</div>
+            <div class='col-md-12' style='font: 10px sans-serif; color: black'>
+                <table class="table table-bordered table-striped" id="table-graph">
+                    <thead>
+                        <tr class='header' >
+                            <th> Nom </th>
+                            <th> Prénoms </th>
+                            <th> Age </th>
+                            <th> Grade </th>
+                            <th> Régiment </th>
+                            <th> Date du décès </th>
+                            <th> Lieu du décès </th>
+							<th> Pays du décès </th>
+                            <th> N° et Nom du dpt de décès </th>
+							<th> Carte </th>
+                            <th> Lieu de naissance</th>
+							<th> Pays de naissance</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+	
+	  
+    <script type="text/javascript">
+	
+// configuration de la datatable
+		$(document).ready(function() {
+		$('#table-graph').DataTable( {
+			"stripeClasses": [ 'strip1', 'strip2', 'strip3' ],
+			"autoWidth": true,
+			"scrollY": "200px",
+			"info": false,
+			"searching": false,
+			"scrollCollapse": false,
+			"paging":        false,
+			 "ordering": false
+		});
+		});
+		
+        var graph1 = dc.geoChoroplethChart("#graph1");
+		var graph2 = dc.geoChoroplethChart("#graph2");
+		var graph3 = dc.geoChoroplethChart("#graph3");
+        var graph4 = dc.geoChoroplethChart("#graph4");	   
+        var graph5 = dc.barChart("#graph5");
+		var graph7 = dc.barChart("#graph7");
+		var graph8 = dc.barChart("#graph8");
+		var graph9= dc.rowChart("#graph9");
+		var graph10= dc.rowChart("#graph10");
+        var dataTable = dc.dataTable("#table-graph,.dc-data-table");
+        var count = dc.dataCount('.dc-data-count');
+		var size = 200;
+
+        d3.csv("data/toulousains-morts-pour-la-france-1914-1919-3.csv", function (csv) {
+			//console.log (csv);	
+		    var dtgFormat1 = d3.time.format("%Y-%m-%d");
+            var dtgFormat2 = d3.time.format("%d/%m/%Y");
+            var numberFormat = d3.format(".0f");
+            var dtgFormat3 = d3.time.format("%Y/%m");
+            var dtgFormat4 = d3.time.format("%b %Y");
+
+            function _calculateAge(dDeces, dNaissance) {
+		        var ageDifMs = dDeces.getTime() - dNaissance.getTime();
+			    var ageDate = new Date(ageDifMs); 
+			   return Math.abs(ageDate.getUTCFullYear()-1970);
+            }
+
+            csv.forEach(function (d) {
+			    d.dateNaissance = dtgFormat1.parse(d.Date_de_naissance);
+		     	d.dateDeces = dtgFormat2.parse(d.Date_du_décès); 
+			    d.dateDecesM = d3.time.month(d.dateDeces);
+			    d.nomDptDécès = d.nomDptDécès.toUpperCase().replace(/\s/g, '') ;
+				d.age = _calculateAge(d.dateDeces, d.dateNaissance);
+				});
+
+            var data = crossfilter(csv);
+            var all = data.groupAll()
+			
+			var lieuDeces = data.dimension(function (d) {
+                return d["Lieu_du_décès"];
+            });			
+			var paysN = data.dimension(function (d) {
+                return d["Pays"];
+            });
+			var regiment = data.dimension(function (d) {
+                return d["Régiment"];
+            });
+			var dptN = data.dimension(function (d) {
+                return d["Département_de_naissance"];
+            });
+			var paysN = data.dimension(function (d) {
+                return d["Pays"];
+            });
+			var paysD = data.dimension(function (d) {
+                return d["Pays_de_décès"];
+            });
+			
+            var dptD = data.dimension(function (d) {
+                return d["nomDptDécès"];
+            });
+            var anneeDecesM = data.dimension(function (d) {
+                return d["dateDecesM"];
+            });
+            var ageDeces = data.dimension(function (d) {
+                return d["age"];
+            });
+			var anneeDeces = data.dimension(function (d) {
+                return d3.time.year(d["dateDeces"]).getFullYear();
+            });
+
+			var anneeDecesGroup = anneeDeces.group();
+			var NombredptNSum = dptN.group().reduceCount(); 
+			var NombrepaysDSum = paysD.group(); // reduceCount() pas necessaire!
+			var NombrepaysNSum = paysN.group();
+            var ageDecesGroup = ageDeces.group();
+			var regimentGroup = regiment.group();
+			var lieuDecesGroup = lieuDeces.group();
+			//var NombredptDSum = dptD.group().reduceCount(); ;
+			//console.log(ageDecesGroup.top(5)) ;
+			
+			var anneeDecesMGroup = anneeDecesM.group().reduce(
+            //callback for when data is added to the current filter results 
+            function (p, v) {
+                ++p.count;
+                p.sum += v['age'];
+				p.moy = Math.round(p.sum / p.count);
+                return p;
+            },
+            // callback for when data is removed from the current filter results 
+            function (p, v) {
+				--p.count;
+                p.sum -= v['age'];
+				p.moy = Math.round(p.sum / p.count);
+			   return p;
+            },
+            // initialize p 
+            function () {
+                return {
+                    count: 0,
+                   	sum: 0,
+                    moy: 0,
+                };
+            });
+					
+			var NombredptDSum = dptD.group().reduce(
+            //callback for when data is added to the current filter results 
+            function (p, v) {
+				++ p.count
+           		//p.dpt = v['Département_de_décès']
+                return p;
+            },
+            // callback for when data is removed from the current filter results 
+            function (p, v) {
+				--p.count;
+				//p.dpt = v['Département_de_décès']
+                return p;
+            },
+            // initialize p 
+            function () {
+                return {
+				//	dpt : 0,
+                    count: 0,                   
+                };
+            });
+
+			//console.log(NombredptDSum.top(10));
+			
+// carte des lieux de décès reste du monde 
+			d3.json("data/world.json", function (carteMonde) {
+				graph1.width(300)
+					.height(200)
+					.dimension(paysN)
+					.group(NombrepaysNSum)
+					.colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+					.colorDomain([0,120])
+					.colorCalculator(function (d) {
+						return d ? graph1.colors()(d) : '#ddd';
+					})
+					.projection(d3.geo.mercator()
+						.center([0, 0])
+						.translate([115,110])
+						.scale(85))
+					.overlayGeoJson(carteMonde.features, "state", function (d) {
+						return d.properties.sovereignt;
+					})
+					.title(function (d) {
+						return "Pays : " + d.key + "\nNb de Naissance : " + numberFormat(d.value ? d.value : 0);
+					});
+				graph1.render();
+				});
+			
+			
+// carte des lieux de naissance 
+           d3.json("data/departements.json", function (dptJson) {
+			       graph2.width(250)
+                    .height(250)
+                    .dimension(dptN)
+                    .group(NombredptNSum)
+                    .colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+                    .colorDomain([0,450])
+                    .colorCalculator(function (d) {
+                        return d ? graph2.colors()(d) : '#ddd';
+                    })
+                    .projection(d3.geo.mercator()
+                        .center([-6,52])
+                        .translate([0,0])
+                        .scale(800))
+                    .overlayGeoJson(dptJson.features, "state", function (d) {
+                        return d.properties.CODE_DEPT;
+                    })
+                    .title(function (d) {
+                        return "N°dpt : " + d.key + "\nNb de Naissances : " + numberFormat(d.value ? d.value : 0);
+                    })
+                   .render();
+					});
+			
+// carte des lieux de décès reste du monde 
+	d3.json("data/world.json", function (carteMonde) {
+			       graph3.width(300)
+                    .height(200)
+                    .dimension(paysD)
+                    .group(NombrepaysDSum)
+                    .colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+                    .colorDomain([0,120])
+                    .colorCalculator(function (d) {
+                        return d ? graph3.colors()(d) : '#ddd';
+                    })
+                    .projection(d3.geo.mercator()
+                        .center([0, 0])
+                        .translate([80,300])
+                        .scale(250))
+                    .overlayGeoJson(carteMonde.features, "state", function (d) {
+                        return d.properties.sovereignt;
+                    })
+                    .title(function (d) {
+                        return "Pays : " + d.key + "\nNb de décès : " + numberFormat(d.value ? d.value : 0);
+                    });
+                graph3.render();
+				});	
+			
+// carte des lieux de décès en France			
+		 d3.json("data/departements.json", function (dptJson) {
+				graph4.width(250)
+                    .height(250)
+                    .dimension(dptD)
+                    .group(NombredptDSum)
+					.valueAccessor(function (d) { return d.value.count  })
+					.colors(d3.scale.quantize().range(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"]))
+                    .colorDomain([0, 450])
+                    .colorCalculator(function (d) {
+                        return d ? graph4.colors()(d) : '#ddd';
+                    })
+                    .projection(d3.geo.mercator()
+                        .center([-6, 52])
+                        .translate([0, 0])
+                        .scale(800))
+                    .overlayGeoJson(dptJson.features, "state", function (d) { 
+                        return d.properties["NOM_DEPT"];
+                    })
+					.title(function (d) {
+                       return "Nom du dpt : " + d.key + "\nNb de décès : " + d.value ; // ? d.value : 0);
+					});
+                graph4.render();
+				});
+
+// Diagramme en barres des décès par mois       			
+            graph5.width(510)
+                .height(200)
+                .margins({
+                    top: 30,
+                    right: 50,
+                    bottom: 60,
+                    left: 40
+                })
+                .dimension(anneeDecesM)
+                .group(anneeDecesMGroup)
+				.valueAccessor(function (d) {
+                return d.value.count
+                })
+                 .brushOn(true)
+				.y(d3.scale.linear().domain([0, 350]))
+				
+				//.xUnits(dc.units.ordinal)
+				.colors(d3.scale.ordinal().range(['#ec7014']))
+				//.x(d3.scale.ordinal())
+				
+				
+               .x(d3.time.scale().domain([new Date(dtgFormat3.parse("1914/06")), new Date(dtgFormat3.parse("1919/12"))]))
+                .elasticY(true)
+				.gap(1)
+				.renderLabel(false)
+                .yAxisLabel("Nombre")
+                .title(function (d) {
+                    return dtgFormat4(d.key) + '\nDécès : ' + d.value.count
+                })
+                .renderHorizontalGridLines(true);
+            graph5.yAxis().ticks(5).tickFormat(function (s) {
+                return s + "";
+            });
+			graph5.xAxis().ticks(25).tickFormat(d3.time.format("%b-%Y"));
+			graph5.renderlet(function (graph5) {
+                graph5.selectAll('g.x text')
+                    .attr('transform', 'translate(-22,15) rotate(315) ');
+            })
+            graph5.render();
+			
+ // Diagramme en barres des décès par age  
+            graph7.width(850)
+                .height(200)
+                .margins({
+                    top: 10,
+                    right: 50,
+                    bottom: 30,
+                    left: 40
+                })
+                .dimension(ageDeces)
+                .group(ageDecesGroup)
+				.brushOn(true)
+                .y(d3.scale.linear().domain([0, 450]))
+                .elasticY(true)
+                .renderLabel(false)
+                .gap(3)
+                .round(dc.round.floor)
+                .alwaysUseRounding(true)
+				.xUnits(dc.units.ordinal)
+				.colors(d3.scale.ordinal().range(['#feb24c']))
+				.x(d3.scale.ordinal())
+				//.x(d3.scale.ordinal().range(["#feb24c"]))
+                 //.x(d3.scale.linear().domain([15, 65]))
+                .yAxisLabel("Nombre")
+                .xAxisLabel("Age")
+                .renderHorizontalGridLines(true)
+				.title(function (d) {
+					return "Age : " + d.key  + "\n nb de décès = "+ numberFormat(d.value);
+					});
+            graph7.yAxis().tickFormat(function (s) {
+                return s + "";
+            });
+            graph7.xAxis().ticks(8).tickFormat(d3.format("0f"));
+            graph7.render();
+			
+ 
+ 
+// Diagramme en barres des décès par an   
+ graph8.width(320)
+                .height(200)
+                .margins({
+                    top: 10,
+                    right: 50,
+                    bottom: 50,
+                    left: 40
+                })
+                .dimension(anneeDeces)
+                .group(anneeDecesGroup)
+                .brushOn(true)
+				.elasticY(true)
+                .y(d3.scale.linear().domain([0, 1200]))
+				.xUnits(dc.units.ordinal)
+				.colors(d3.scale.ordinal().range(['#feb24c']))
+				.x(d3.scale.ordinal())
+				//.x(d3.scale.ordinal().range(["#feb24c"]))
+                //.x(d3.scale.linear().domain([1914, 1920]))
+                .renderLabel(false)
+                .gap(10)
+                .round(dc.round.floor)
+                .alwaysUseRounding(true)
+                .yAxisLabel("Nombre")
+                .renderHorizontalGridLines(true)
+				.title(function (d) {
+					return d.key  + "\n nb de décès = "+ numberFormat(d.value);
+					});
+            graph8.yAxis().tickFormat(function (s) {
+                return s + "";
+            });
+            graph8.renderlet(function (graph8) {
+                graph8.selectAll('g.x text')
+                    .attr('transform', 'translate(-22,15) rotate(315) ');
+            })
+            graph8.xAxis().ticks(6).tickFormat(d3.format("0f"));
+            graph8.yAxis().ticks(5)
+            graph8.render();			
+			
+// Diagramme en row lieu deces	
+	
+        graph9.width(200)
+            .height(13000)
+            .margins({
+                top: 0,
+                right: 0,
+                bottom:40,
+                left: 5
+            })
+            .dimension(lieuDeces)
+			.group(lieuDecesGroup)
+			.valueAccessor(function (d) {
+                return d.value
+               })
+		    .label(function (d) {
+            return d.key  ? d.key + " - " + numberFormat(d.value): "?" + " - " + numberFormat(d.value); 
+			})
+			.title(function (d) {
+			   return d.key + " : nb = " + numberFormat(d.value);
+			})
+			.elasticX(true)
+			.ordering(function(d) { return -d.value })
+			.colors(d3.scale.ordinal().range(['#74a9cf']))
+			.gap(3)
+			.xAxis().ticks(2).tickFormat(d3.format(".0f"));
+         	graph9.render();
+	
+// Diagramme en row régiment	
+	
+        graph10.width(200)
+            .height(13000)
+            .margins({
+                top: 0,
+                right: 0,
+                bottom:40,
+                left: 5
+            })
+            .dimension(regiment)
+			.group(regimentGroup)
+			.valueAccessor(function (d) {
+                return d.value
+               })
+		    .label(function (d) {
+            return d.key  ? d.key + " - " + numberFormat(d.value): "?" + " - " + numberFormat(d.value); 
+			})
+			.title(function (d) {
+			   return d.key + " : nb = " + numberFormat(d.value);
+			})
+			.elasticX(true)
+			.ordering(function(d) { return -d.value })
+			.colors(d3.scale.ordinal().range(['#feb24c']))
+			.gap(3)
+			.xAxis().ticks(2).tickFormat(d3.format(".0f"));
+         	graph10.render();			
+			
+			
+// Compteur			
+            count
+                .dimension(data)
+                .group(all)
+                .html({
+                    some: '<strong>%filter-count</strong> sélectionnés sur <strong>%total-count</strong> enregistrements  |' +
+                        '<a href=\'javascript: dataTable.size(Infinity).render(); dc.renderAll();\'\'> Voir tous les enregistrements</a>'+ ' | '+'<a href=\'javascript: dc.filterAll();dataTable.size(size).render(); dc.redrawAll();\'\'>Reset All</a>',
+                    all: 'Tous les enregistrements sélectionnés. Cliquer sur les graphes pour appliquer les filtres. | ' + '<a href=\'javascript: dataTable.size(Infinity).render(); dc.renderAll();\'\'> Voir tous les enregistrements</a>'+ ' | '+'<a href=\'javascript: dc.filterAll();dataTable.size(size).render(); dc.redrawAll();\'\'>Reset All</a>'
+                })
+                .render(); 
+			
+//Table 
+            dataTable.width(960).height(800)
+                .dimension(dptN)
+                .group(function (d) {return d;               
+                })
+                .size(size)
+                .columns([
+      function (d) {
+                        return d.Nom;
+       },
+      function (d) {
+                        return d.Prénoms;
+       },
+      function (d) {
+                        return d.age;
+       },
+    function (d) {
+                        return d.Grade
+    },
+      function (d) {
+                        return d.Régiment;
+       },
+    function (d) {
+                        return d.Date_du_décès;
+       },
+      function (d) {
+                        return d.Lieu_du_décès;
+       },
+	function (d) {
+                        return d.Pays_de_décès;
+       },
+       function (d) {
+                        return d.Département_de_décès + " - "+ d.nomDptDécès;
+       },
+	   function (d) {
+                        return '<a href=\"http://maps.google.com/maps?z=1&t=m&q=loc:' + d.Lieu_du_décès + ' '+ d.Pays_de_décès + "\" target=\"_blank\">carte</a>"
+                    },
+     function (d) {
+                        return d.Ville_de_naissance;
+       },
+	     function (d) {
+                        return d.Pays;
+       },
+    ])
+                .sortBy(function (d) {
+                    return d.Nom;
+                })
+                .order(d3.descending)
+                .on('renderlet', function (table) {
+                    table.select('tr.dc-table-group').remove()
+                })
+                .render();
+        });
+	
+    </script>
+</body>
+
+</html>
